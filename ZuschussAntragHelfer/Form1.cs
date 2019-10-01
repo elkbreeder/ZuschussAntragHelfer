@@ -19,6 +19,7 @@ namespace ZuschussAntragHelfer
         private List<Person> people;
         private Person selected;
         AutoCompleteStringCollection col;
+        private bool clickedOnElement;
         public Form1()
         {
             RegisterHotKey(this.Handle, HOTKEY_ID, 6, (int)Keys.K);
@@ -26,12 +27,20 @@ namespace ZuschussAntragHelfer
         }
         public void enterData()
         {
+            if(selected == null)
+            {
+                MessageBox.Show("Niemand Ausgwählt","Information", MessageBoxButtons.OK ,MessageBoxIcon.Information);
+                return;
+            }
             InputSimulator sim = new InputSimulator();
             sim.Keyboard.TextEntry(selected.Vorname + " " + selected.Nachname);
             Thread.Sleep(200);
-            sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
-            sim.Keyboard.TextEntry(""+selected.getAge());
-            Thread.Sleep(200);
+            if (!checkBox1.Checked)
+            {
+                sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
+                sim.Keyboard.TextEntry("" + selected.getAge());
+                Thread.Sleep(200);
+            }
             sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
             sim.Keyboard.TextEntry(selected.Ort);
             Thread.Sleep(200);
@@ -39,6 +48,10 @@ namespace ZuschussAntragHelfer
             sim.Keyboard.TextEntry(selected.Adresse);
             Thread.Sleep(200);
             sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
+            if (checkBox2.Checked)
+            {
+                sim.Keyboard.TextEntry(textBox2.Text);
+            }
         }
 
 
@@ -76,14 +89,25 @@ namespace ZuschussAntragHelfer
                     p.Adresse = values[indexDict["Adresse"]];
                     p.Ort = values[indexDict["PLZ"]] + " " + values[indexDict["Ort"]];
                     people.Add(p);
-                    col.Add(p.Nachname + ", " + p.Vorname);
                 }
             }
+            String[] t;
+            if (radioButton1.Checked)
+            {
+                t = people.Select(p => p.Nachname + ", " + p.Vorname).ToArray();
+            }
+            else
+            {
+                t = people.Select(p => p.Vorname + ", " + p.Nachname).ToArray();
+            }
+            col = new AutoCompleteStringCollection();
+            col.AddRange(t);
             textBox1.AutoCompleteCustomSource = col;
             label1.Text = people.Count + " Pfadfinder eingelesen";
         }
         private void init()
         {
+            clickedOnElement = false;
             selected = null;
             people = new List<Person>();
             textBox1.AutoCompleteMode = AutoCompleteMode.Suggest;
@@ -95,7 +119,7 @@ namespace ZuschussAntragHelfer
         {
             if (!col.Contains(textBox1.Text))
             {
-                MessageBox.Show("Keine Person ausgewählt");
+                MessageBox.Show("Niemand Ausgwählt", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 selected = null;
                 return;
             }
@@ -119,6 +143,22 @@ namespace ZuschussAntragHelfer
         {
             Thread.Sleep(2000);
             enterData();
+        }
+
+        private void radioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            String[] t;
+            if(radioButton1.Checked)
+            {
+                t = people.Select(p => p.Nachname + ", " + p.Vorname).ToArray();
+            }
+            else
+            {
+                t = people.Select(p => p.Vorname + ", " + p.Nachname).ToArray();
+            }
+            col = new AutoCompleteStringCollection();
+            col.AddRange(t);
+            textBox1.AutoCompleteCustomSource = col;
         }
     }
 }
