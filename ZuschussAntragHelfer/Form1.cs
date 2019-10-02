@@ -19,7 +19,6 @@ namespace ZuschussAntragHelfer
         private List<Person> people;
         private Person selected;
         AutoCompleteStringCollection col;
-        private bool clickedOnElement;
         public Form1()
         {
             RegisterHotKey(this.Handle, HOTKEY_ID, 6, (int)Keys.K);
@@ -35,7 +34,7 @@ namespace ZuschussAntragHelfer
             InputSimulator sim = new InputSimulator();
             sim.Keyboard.TextEntry(selected.Vorname + " " + selected.Nachname);
             Thread.Sleep(200);
-            if (!checkBox1.Checked)
+            if (!checkBoxTutor.Checked)
             {
                 sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
                 sim.Keyboard.TextEntry("" + selected.getAge());
@@ -48,9 +47,9 @@ namespace ZuschussAntragHelfer
             sim.Keyboard.TextEntry(selected.Adresse);
             Thread.Sleep(200);
             sim.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
-            if (checkBox2.Checked)
+            if (checkBoxNight.Checked)
             {
-                sim.Keyboard.TextEntry(textBox2.Text);
+                sim.Keyboard.TextEntry(textBoxNight.Text);
             }
         }
 
@@ -92,7 +91,7 @@ namespace ZuschussAntragHelfer
                 }
             }
             String[] t;
-            if (radioButton1.Checked)
+            if (radioButtonSurename.Checked)
             {
                 t = people.Select(p => p.Nachname + ", " + p.Vorname).ToArray();
             }
@@ -102,29 +101,29 @@ namespace ZuschussAntragHelfer
             }
             col = new AutoCompleteStringCollection();
             col.AddRange(t);
-            textBox1.AutoCompleteCustomSource = col;
-            label1.Text = people.Count + " Pfadfinder eingelesen";
+            textBoxName.AutoCompleteCustomSource = col;
+            labelInformation.Text = people.Count + " Pfadfinder eingelesen";
         }
         private void init()
         {
-            clickedOnElement = false;
+            labelInformation.Text = "";
             selected = null;
             people = new List<Person>();
-            textBox1.AutoCompleteMode = AutoCompleteMode.Suggest;
-            textBox1.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            textBoxName.AutoCompleteMode = AutoCompleteMode.Suggest;
+            textBoxName.AutoCompleteSource = AutoCompleteSource.CustomSource;
             col = new AutoCompleteStringCollection();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (!col.Contains(textBox1.Text))
+            if (!col.Contains(textBoxName.Text))
             {
                 MessageBox.Show("Niemand Ausgwählt", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 selected = null;
                 return;
             }
-            selected = people[col.IndexOf(textBox1.Text)];
-            label1.Text = selected.Vorname + " " + selected.Nachname + " ausgewählt";
+            selected = people[col.IndexOf(textBoxName.Text)];
+            labelInformation.Text = selected.Vorname + " " + selected.Nachname + " ausgewählt";
         }
         [DllImport("user32.dll")]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
@@ -139,16 +138,10 @@ namespace ZuschussAntragHelfer
             base.WndProc(ref m);
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Thread.Sleep(2000);
-            enterData();
-        }
-
-        private void radioButton_CheckedChanged(object sender, EventArgs e)
+        private void radioButtonName_CheckedChanged(object sender, EventArgs e)
         {
             String[] t;
-            if(radioButton1.Checked)
+            if(radioButtonSurename.Checked)
             {
                 t = people.Select(p => p.Nachname + ", " + p.Vorname).ToArray();
             }
@@ -158,7 +151,17 @@ namespace ZuschussAntragHelfer
             }
             col = new AutoCompleteStringCollection();
             col.AddRange(t);
-            textBox1.AutoCompleteCustomSource = col;
+            textBoxName.AutoCompleteCustomSource = col;
+        }
+
+        private void überToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Sourcecode verfügbar auf https://github.com/elkbreeder/ZuschussAntragHelfer","Über" ,MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void checkBoxNight_CheckedChanged(object sender, EventArgs e)
+        {
+            textBoxNight.Enabled = !textBoxNight.Enabled;
         }
     }
 }
